@@ -1,10 +1,10 @@
 <div align="center">
 
 # Mohammad Reza Mohebbian, PhD
-### Machine Learning Engineer · Train → Evaluate → Ship to Prod
+### Machine Learning Engineer · Kernels → Training → Serving → Monitoring
 
 PhD in Electrical & Computer Engineering (University of Saskatchewan).  
-I design, train, and productionize deep learning systems — from research-grade models to monitored services in the wild.
+I build production AI systems end-to-end: custom GPU kernels, RL / LLM / vision training, ONNX export, low-latency serving, and online model monitoring.
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/mr-mohebbian-1a236952/)
 [![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/channel/UCn9Rujwh7SfHF2RRvy_ks-g)
@@ -20,11 +20,26 @@ Toronto, Canada · Open to collaboration on applied AI systems
 ## Operating principle
 
 ```text
-data → features/representations → training loops → offline eval →
-online serving → observability → iterate
+data → representations → train (SFT / RL) → offline eval →
+export (ONNX / TensorRT) → serve → drift & quality monitors → iterate
 ```
 
-I treat model development as an engineering discipline: reproducible training, hard evaluation, latency/cost budgets, and deployment paths that survive contact with production traffic.
+I treat model work as systems engineering: Triton kernels where the hot path matters, reproducible training for LLMs and vision, hard offline gates, then production monitors that catch silent failure modes before users do.
+
+---
+
+## Systems depth
+
+| Layer | What I actually do |
+| --- | --- |
+| **GPU / kernels** | Write & profile **Triton** kernels for attention, fused ops, and custom vision/signal blocks; cut latency & memory without rewriting whole stacks |
+| **LLM training** | SFT / LoRA / adapters, preference data, **RL for LLMs** (PPO / GRPO-style loops, reward models, KL control), eval harnesses that survive A/B |
+| **Vision training** | Segmentation, OCR, embeddings; **RL / policy fine-tuning** for vision agents & closed-loop perception when supervised labels are thin |
+| **Export & runtime** | **ONNX** graphs, opset debugging, dynamic axes, quantization (INT8 / FP16), TensorRT / ONNX Runtime paths for prod |
+| **Serving** | FastAPI / gRPC, Docker, Kubernetes, canary & shadow traffic, batching & GPU utilization under SLO |
+| **Prod monitoring** | Latency / throughput / GPU mem, prediction drift, embedding drift, calibration, data quality, alert → rollback playbooks |
+
+Industry work includes production ML at **Cubby**, **Procore**, and **Yardi**, plus applied research collaborations (e.g. MRI motion detection with Philips Canada).
 
 ---
 
@@ -34,10 +49,8 @@ I treat model development as an engineering discipline: reproducible training, h
 | --- | --- |
 | **Computer Vision** | Segmentation, OCR / document understanding, MRI artifact detection, endoscopy analytics, technical-drawing embeddings |
 | **Signals & Biomed** | Fetal ECG extraction (CycleGAN + attention), PPG → BP, sEMG force / gesture, anomaly detection with active learning |
-| **NLP / LLMs** | LLM fine-tuning (e.g. MPT-7B), transformers from scratch, retrieval-aware document pipelines |
-| **MLOps** | Dockerized training & inference, experiment tracking (MLflow), CI (CircleCI), GitOps (ArgoCD), K8s serving |
-
-Industry work includes production ML at **Cubby**, **Procore**, and **Yardi**, plus applied research collaborations (e.g. MRI motion detection with Philips Canada).
+| **NLP / LLMs** | LLM fine-tuning (e.g. MPT-7B), transformers from scratch, RLHF-style preference loops, retrieval-aware document pipelines |
+| **Systems / MLOps** | Triton kernels · ONNX export · MLflow · CircleCI · ArgoCD · K8s serving · online drift & quality monitors |
 
 ---
 
@@ -55,7 +68,7 @@ Published in *IEEE JBHI* — ~98% R² mapping, ≥99% F1 fetal QRS detection.
 <td width="50%" valign="top">
 
 ### [`mpt_7b_fine_tuning`](https://github.com/antecessor/mpt_7b_fine_tuning)
-Hands-on LLM fine-tuning notebooks — data prep, adapters, training loops, and eval for production-minded LLM work.
+Hands-on LLM fine-tuning — data prep, adapters, training loops, and eval with a production mindset.
 
 </td>
 </tr>
@@ -82,12 +95,26 @@ Active-learning loop for FECG anomaly annotation → model calibration → low-c
 </td>
 <td width="50%" valign="top">
 
-### [`Transformers`](https://github.com/antecessor/Transformers) · [`BloodPressure_Estimation`](https://github.com/antecessor/BloodPressure_Estimation)
-Attention implementations and PPG-only blood-pressure estimation — signal ML with a deployment mindset.
+### [`Transformers`](https://github.com/antecessor/Transformers) · [`PPO-RL`](https://github.com/antecessor/PPO-RL)
+Attention from scratch + PPO reinforcement learning — building blocks for LLM / policy training loops.
 
 </td>
 </tr>
 </table>
+
+---
+
+## Production ML loop (how I think about “done”)
+
+```text
+1. Train     SFT / RL for LLM & vision · reward design · offline metrics
+2. Harden    Triton hot paths · ONNX export · quantize · latency budget
+3. Serve     K8s · canary · autoscaling · GPU packing
+4. Monitor   p50/p99 · drift · calibration · data schema · alert → rollback
+5. Improve   shadow eval · preference / RL updates · ship again
+```
+
+Silent model failure is still failure. Production-grade ML means dashboards and gates, not just a checkpoint in S3.
 
 ---
 
@@ -114,11 +141,13 @@ Attention implementations and PPG-only blood-pressure estimation — signal ML w
 ## Stack I actually use
 
 ```text
-Languages   Python · Java · C++ · MATLAB · SQL
-DL          PyTorch · TensorFlow · Transformers · CNNs · GANs · SSL (BYOL)
-CV / OCR    OpenCV · Mask2Former · docTR · embeddings / dVAE-style reps
-Signals     1-D CNNs · WaveNet · BSS / adaptive filtering · active learning
-Serving     FastAPI · Docker · Kubernetes · ArgoCD · CircleCI · MLflow
+Languages     Python · CUDA/Triton · Java · C++ · MATLAB · SQL
+Train         PyTorch · Transformers · LoRA/SFT · PPO / RL for LLMs & vision
+Vision        OpenCV · Mask2Former · docTR · CNNs · GANs · SSL (BYOL)
+Compile       ONNX · ONNX Runtime · TensorRT · quantization (FP16/INT8)
+Kernels       Triton · fused attention / custom ops · Nsight profiling
+Serve         FastAPI · gRPC · Docker · Kubernetes · ArgoCD · CircleCI
+Observe       MLflow · Prometheus/Grafana-style SLOs · drift & quality monitors
 ```
 
 ---
@@ -138,16 +167,17 @@ Serving     FastAPI · Docker · Kubernetes · ArgoCD · CircleCI · MLflow
 
 ## Currently optimizing for
 
-- **Reliable training → serving loops** with clear offline/online metrics  
-- **Document & drawing intelligence** (OCR, segmentation, embedding search) in production  
-- **LLM fine-tuning** that respects cost, latency, and evaluation rigor  
-- Teaching applied ML clearly on [YouTube](https://www.youtube.com/channel/UCn9Rujwh7SfHF2RRvy_ks-g)
+- **Triton kernels** on inference hot paths (attention, fused vision/signal ops)  
+- **RL training loops** for LLMs and vision policies with stable reward + KL control  
+- **ONNX → runtime** pipelines that keep numerical parity under quantization  
+- **Production monitors**: latency SLOs, prediction/embedding drift, calibration, rollback  
+- Teaching applied systems ML on [YouTube](https://www.youtube.com/channel/UCn9Rujwh7SfHF2RRvy_ks-g)
 
 ---
 
 <div align="center">
 
-**If you care about models that leave the notebook and earn their keep in prod — let's talk.**
+**If you care about kernels, RL training, ONNX runtimes, and models that stay honest in prod — let's talk.**
 
 `antecessor` · Canada · Machine Learning Engineer
 
